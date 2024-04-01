@@ -1,0 +1,39 @@
+@font-face {
+    font-family: 'vt323';
+    src: url('../font/vt323/VT323-Regular.ttf') format('truetype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    text-align: center;
+
+    /* Prevents the user from selecting other html elements. This will fix our issues with un-recorded key presses */
+    user-select: none;
+}
+
+body::contextmenu {
+    display: none;
+}
+
+#container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-content: center;
+}
+
+#game-world {
+    width: multiply(95vh, 16 / 9);
+    height: 95vh;
+    margin: auto;
+    background: #333333;
+    display: block;
+}
+
+#options {
+    margin: 10px 0 10px 0;
+}
