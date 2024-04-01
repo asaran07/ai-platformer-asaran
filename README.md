@@ -18,7 +18,7 @@ These are my development plans:
 
 ## Credits
 
-- All music and artwork (including a decent amount of code) is taken from my team's game titled "The Good, The Bad, and Chad" which can be found [here](https://github.com/GoodBadChad/good-bad-chad-br)
+- Most music, artwork, and code are taken from my team's game titled "The Good, The Bad, and Chad" which can be found [here](https://github.com/GoodBadChad/good-bad-chad-br)
 - The artwork in this game is made by me and my three teammates, Caleb Krauter, Trae Claar, and Devin Peevy.
 - The music is composed by Caleb Krauter and I. 
     - You can listen to more of Caleb's music [here](https://www.youtube.com/@calebkrauterdev).
