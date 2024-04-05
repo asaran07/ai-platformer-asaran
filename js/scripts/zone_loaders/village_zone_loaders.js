@@ -350,9 +350,9 @@ const loadVillageMain = () => {
         //     [new Vector(300, 0), new Vector(-300, 0), new Vector(0, 0)]
         // ));
 
-        // GAME.addEntity(new DrillBot(Vector.blockToWorldSpace(
-        //     new Vector(65, aboveGroundLevel - 5))
-        // ));
+        GAME.addEntity(new DrillBot(Vector.blockToWorldSpace(
+            new Vector(65, aboveGroundLevel - 5))
+        ));
 
         LoadingAnimation.stop();
     };
@@ -448,11 +448,6 @@ const loadHillDownFromMain = () => {
         //     GAME.addEntity(new Bird(ZONE.MIN_PT.x, i, ZONE.MAX_PT.x, ZONE.MAX_PT.y))
 
         // // }
-        // GAME.addEntity(new FoodDrop(FoodDrop.CHICKEN, Vector.blockToWorldSpace(new Vector(8, 8))), -1);
-
-        // GAME.addEntity(new FoodDrop(FoodDrop.ENERGY_DRINK, Vector.blockToWorldSpace(new Vector(49, 25))));
-        // GAME.addEntity(new FoodDrop(FoodDrop.STEAK, Vector.blockToWorldSpace(new Vector(39, 37))));
-        // GAME.addEntity(new FoodDrop(FoodDrop.CHICKEN, Vector.blockToWorldSpace(new Vector(61.6, 18.7))), -1);
         GAME.addEntity(new FoodDrop(
             Vector.blockToWorldSpace(new Vector(8, 8), -1),
             FoodDrop.CHICKEN,
