@@ -4,7 +4,8 @@ This is a platformer game developed by me (Nathan Hinthorne).
 
 This project is basically an ongoing experiment to see how well I can implement deep learning AI into a platformer game. Various deep learning algorithms will be used, including NEAT.
 
-### Plans
+## Plans
+
 These are my development plans:
 - Implement complex physics systems to allow for more interesting gameplay.
 - Use the NEAT algorithm to train AI enemies to fight the player and navigate the level.
