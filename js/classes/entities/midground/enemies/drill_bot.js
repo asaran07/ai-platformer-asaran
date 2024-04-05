@@ -75,14 +75,14 @@ class DrillBot {
         return 3;
     };
 
-    /** Number of seconds after the start of the attack animation when first damage should be dealt. */
-    static get FIRST_DAMAGE_DELAY() {
-        return 0.5;
+    /** The first frame number in attack animation where damage should be dealt */
+    static get DAMAGE_FRAME_1() {
+        return 3;
     }
 
-    /** Number of seconds after the start of the attack animation when second damage should be dealt. */
-    static get SECOND_DAMAGE_DELAY() {
-        return 0.5;
+    /** The second frame number in attack animation where damage should be dealt */
+    static get DAMAGE_FRAME_2() {
+        return 7;
     }
 
 
@@ -139,6 +139,7 @@ class DrillBot {
         if (this.health > 0) {
 
             const secondsSinceLastAttack = Date.now() / 1000 - this.lastAttack;
+            const attackAnim = this.animations[this.base.getFacing()]["attacking"];
 
             // if we've finished our current attack, change action to idle
             if (this.action === "attacking" 
@@ -151,24 +152,24 @@ class DrillBot {
             if (this.withinAttackRange() && this.state === "pursue") {
                 if (secondsSinceLastAttack > DrillBot.ATTACK_COOLDOWN) {
                     // if it's been long enough, start a new attack 
-                    this.animations[this.base.getFacing()]["attacking"].elapsedTime = 0;
+                    attackAnim.elapsedTime = 0;
                     this.action = "attacking"
                     this.lastAttack = Date.now() / 1000;
                     this.performedFirstAttack = false;
                     this.performedSecondAttack = false;
                 }
                 if (this.action === "attacking" 
-                    && secondsSinceLastAttack > DrillBot.FIRST_DAMAGE_DELAY && !this.performedFirstAttack) {
+                    && attackAnim.currentFrame >= DrillBot.DAMAGE_FRAME_1 
+                    && !this.performedFirstAttack) {
                     // if we're at the proper point in our attack animation, deal damage the first time
 
                     ASSET_MGR.playSFX(SFX.DRILL2.path, SFX.DRILL2.volume);
                     CHAD.takeDamage(DrillBot.ATTACK_DAMAGE);
                     this.performedFirstAttack = true;
-                    this.timeOfFirstAttack = Date.now() / 1000; // Record the time of the first attack
                 }
-                const secondsSinceFirstAttack = Date.now() / 1000 - this.timeOfFirstAttack;
                 if (this.action === "attacking" 
-                    && secondsSinceFirstAttack > DrillBot.SECOND_DAMAGE_DELAY && !this.performedSecondAttack) {
+                    && attackAnim.currentFrame >= DrillBot.DAMAGE_FRAME_2
+                    && !this.performedSecondAttack) {
                     // if we're at the proper point in our attack animation, deal damage the second time
 
                     ASSET_MGR.playSFX(SFX.DRILL1.path, SFX.DRILL1.volume);

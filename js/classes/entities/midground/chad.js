@@ -33,8 +33,6 @@ class Chad {
         this.facing = "right";
         /** What is the Chad doing? */
         this.action = "idle";
-        /** The velocity at which Chad is moving. */
-        this.velocity = new Vector(0, 0);
         /** Name of character. */
         this.name = "Chad";
         /** The health of Chad. */
@@ -45,6 +43,8 @@ class Chad {
         this.speed = Chad.DEFAULT_SPEED;
         /** Chad's damage multiplier (applied on sword/slingshot hit) */
         this.damageMultiplier = 1;
+
+        this.physics = new PhysicsComponent(Chad.MASS); 
 
         /** The size of Chad on the canvas */
         this.scaledSize = new Vector(Chad.DEFAULT_BOUNDING_BOX_SIZE.x * Chad.DEFAULT_SCALE.x,
@@ -147,6 +147,13 @@ class Chad {
     }
 
     /**
+     * @returns {number} the mass of Chad
+     */
+    static get MASS() {
+        return 1;
+    }
+
+    /**
      * Update the scale of Chad along with his scaled size.
      * @param {Vector} newScale the new scale of Chad
      */
@@ -244,25 +251,6 @@ class Chad {
         }
     };
 
-    knockback(direction, amount) {
-        // this.pos = Vector.add(this.pos, Vector.multiply(direction, amount));
-
-        this.knockbackForce = Vector.multiply(direction, amount * 100);
-        this.isKnockedBack = true;
-    }
-
-    manageKnockback() {
-        if (this.isKnockedBack) {
-            this.knockbackForce = Vector.multiply(this.knockbackForce, 0.5);
-            this.velocity = Vector.add(this.velocity, this.knockbackForce);
-
-            // If velocity is below a certain threshold, end knockback
-            if (Vector.magnitude(this.knockbackForce) < 0.1) {
-                this.isKnockedBack = false;
-            }
-        }
-    }
-
 
     /**
      * Increase the health of Chad by the provided amount
@@ -288,16 +276,9 @@ class Chad {
 
     /**
      * Deals with movement in the x direction including walking, running and dashing.
-     * 
-     * @returns {number} the x velocity of Chad
      */
     manageXDirectionMovement() {
-        if (this.isKnockedBack) {
-            // don't allow movement while knocked back
-            return this.velocity.x;
-        }
-
-        let xVelocity = this.velocity.x;
+        let xForce = new Vector(0, 0);
 
         let dirSign = 0;
 
@@ -309,13 +290,13 @@ class Chad {
             dirSign = 1;
         }
 
-        xVelocity = dirSign * this.speed;
+        xForce = new Vector(dirSign * this.speed, 0);
 
         // Run action
         if (GAME.user.movingLeft || GAME.user.movingRight) {
             if (GAME.user.running) {
                 this.action = "running";
-                xVelocity = dirSign * this.speed * Chad.RUN_MULTIPLIER;
+                xForce = new Vector(dirSign * this.speed * Chad.RUN_MULTIPLIER, 0);
 
                 // if you're on the ground, running, AND moving, release dust particles
                 if (this.isOnGround) {
@@ -359,7 +340,7 @@ class Chad {
             }
 
             this.action = "dashing";
-            xVelocity = dirSign * this.speed * Chad.DASH_MULTIPLIER;
+            xForce = dirSign * this.speed * Chad.DASH_MULTIPLIER;
 
             if (this.dashStopTimer >= Chad.DASH_TIME_LIMIT) {
                 // we just finished dashing
@@ -380,21 +361,19 @@ class Chad {
             this.dashStopTimer = 0;
         }
 
-        return xVelocity;
+        this.physics.applyForce(xForce);
     }
 
     /**
      * Deals with movement in the y direction including all types of jumping.
-     * 
-     * @returns {number} the y velocity of Chad
      */
     manageYDirectionMovement() {
-        let yVelocity = this.velocity.y;
+        let yForce = new Vector(0, 0);
 
         if (this.isDashing && !this.isOnGround) {
-            yVelocity = 0; // anti-gravity when dashing
+            // anti-gravity when dashing
         } else {
-            yVelocity += PHYSICS.GRAVITY_ACC * GAME.clockTick;
+            this.physics.applyForce(PhysicsComponent.GRAVITY);
         }
 
         if (this.isOnGround && !this.alreadyLanded) {
@@ -481,8 +460,6 @@ class Chad {
         if (this.health <= 0) {
             return;
         }
-
-        this.manageKnockback();
 
         // Chad shouldn't be able to double jump by default.
         this.canDoubleJump = false;

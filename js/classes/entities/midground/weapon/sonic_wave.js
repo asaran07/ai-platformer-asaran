@@ -84,7 +84,10 @@ class SonicWave {
     onPlayerCollision(player) {
         if (!this.hasHit) {
             player.takeDamage(SonicWave.DAMAGE);
-            player.knockback(this.dir, 30);
+            
+            direction = Vector.direction(this.pos, player.pos);
+            knockback = Vector.multiply(direction, 30);
+            player.physics.applyForce(knockback);
 
             this.hasHit = true;
             this.removeFromWorld = true;
