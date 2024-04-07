@@ -16,6 +16,10 @@ These are my development plans:
 - Implement a color-based image parser to read tilemaps from an image file.
     - Each color represents a different tile type.
     - This system will allow the user to submit random images which will be fed through an edge detection algorithm, reduced to a more pixelated image, and finally output a JSON file that can be read by the tilemap parser.
+- Try various mathods of procedurally generating terrain for tilemaps.
+    - If possible, use NEAT algorithm
+    - Use Wave Function Collapse (WFC) and stitch together terrain chunks
+    - Use complex graphs where nodes contain data about chunks of terrain
 
 
 ## Credits
