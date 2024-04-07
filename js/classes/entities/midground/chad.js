@@ -43,6 +43,8 @@ class Chad {
         this.speed = Chad.DEFAULT_SPEED;
         /** Chad's damage multiplier (applied on sword/slingshot hit) */
         this.damageMultiplier = 1;
+        /** Whether Chad can change his movement */
+        this.canMove = true;
 
         this.physics = new PhysicsComponent(Chad.MASS); 
 
@@ -277,9 +279,8 @@ class Chad {
     /**
      * Deals with movement in the x direction including walking, running and dashing.
      */
-    manageXDirectionMovement() {
+    manageBasicMovement() {
         let xForce = new Vector(0, 0);
-
         let dirSign = 0;
 
         if (GAME.user.movingLeft) {
@@ -364,10 +365,63 @@ class Chad {
         this.physics.applyForce(xForce);
     }
 
+    manageDash() { 
+        //TODO instead of constantly entering in the dash movement section, use the idea of constant force to tap-dash instead of hold-dash. refactor code to account for this
+        
+        // Dash action
+
+        // update dash conditions
+        if (this.dashCooldownTimer > 0) {
+            this.dashCooldownTimer = Math.max(this.dashCooldownTimer - GAME.clockTick, 0);
+        }
+
+        if (this.isDashing) {
+            this.dashStopTimer += GAME.clockTick;
+        }
+
+        if (this.dashCooldownTimer <= 0 && this.dashStopTimer < Chad.DASH_TIME_LIMIT) {
+            this.canDash = true;
+        }
+
+        // do the dash
+        if (GAME.user.dashing && this.canDash) {
+            if (!this.isDashing) {
+                // we just started dashing
+                this.isDashing = true;
+            }
+
+            // release wind particles every 0.05 seconds
+            if (GAME.gameTime % 0.07 < 0.01) { // we use `< 0.01` instead of `== 0` to avoid floating point errors
+                GAME.addEntity(new ParticleEffect(this.getCenter(), ParticleEffect.WIND));
+            }
+
+            this.action = "dashing";
+            this.physics.applyConstantForce(new Vector(dirSign * this.speed * Chad.DASH_MULTIPLIER, 0), 1);
+
+            if (this.dashStopTimer >= Chad.DASH_TIME_LIMIT) {
+                // we just finished dashing
+                this.canDash = false;
+                this.hasDashed = true;
+                this.isDashing = false;
+                this.dashCooldownTimer = Chad.DASH_COOLDOWN;
+                this.dashStopTimer = 0;
+            }
+        }
+        // Prevents continuing a dash after lifting the dash key.
+        if (!GAME.user.dashing && this.isDashing) {
+            // we just finished dashing
+            this.canDash = false;
+            this.hasDashed = true;
+            this.isDashing = false;
+            this.dashCooldownTimer = Chad.DASH_COOLDOWN;
+            this.dashStopTimer = 0;
+        }
+    }
+
     /**
      * Deals with movement in the y direction including all types of jumping.
      */
-    manageYDirectionMovement() {
+    manageJump() {
         let yForce = new Vector(0, 0);
 
         if (this.isDashing && !this.isOnGround) {
@@ -473,9 +527,8 @@ class Chad {
         this.action = "idle"; // default action
 
         // Step 1: Listen for user input.
-        const newXVelocity = this.manageXDirectionMovement();
-        const newYVelocity = this.manageYDirectionMovement();
-        this.velocity = new Vector(newXVelocity, newYVelocity);
+        this.manageBasicMovement();
+        this.manageJump();
 
         // Step 2: Face in the direction of a mouse click
         if (GAME.user.aiming || this.sword.isSlicing()) {
@@ -527,10 +580,9 @@ class Chad {
 
 
         // Step 3: Account for gravity, which is always going to push you downward.
-        this.velocity.y += PHYSICS.GRAVITY_ACC * GAME.clockTick;
+        this.physics.applyForce(PhysicsComponent.GRAVITY);
 
-        // Step 4: Now move.
-        this.pos = Vector.add(this.pos, Vector.multiply(this.velocity, GAME.clockTick));
+        // Step 4: Update bound boxes (do we need to do this)
         this.lastBoundingBox = this.boundingBox;
         this.boundingBox = this.createBoundingBox();
 

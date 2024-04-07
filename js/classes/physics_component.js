@@ -69,7 +69,7 @@ class PhysicsComponent {
     }
 
     /**
-     * Apply a force to the entity.
+     * Apply a force to the entity, factoring it into the net force.
      * 
      * Use PhysicsComponent.GRAVITY for gravity.
      * 
